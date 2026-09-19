@@ -76,7 +76,8 @@ function walk(dir, base = '') {
   return out;
 }
 
-async function api(method, url, body) {
+async function api(method, url, body, opts = {}) {
+  const allow = opts.allow || [404];      // 默认把 404 交给调用方判断
   const r = await fetch(API + url, {
     method,
     headers: {
@@ -89,10 +90,11 @@ async function api(method, url, body) {
   });
   const text = await r.text();
   let json = null;
-  try { json = text ? JSON.parse(text) : null; } catch { json = { raw: text.slice(0, 200) }; }
-  if (!r.ok && r.status !== 404) {
-    const msg = json && json.message ? json.message : text.slice(0, 200);
-    throw new Error(`${method} ${url} → HTTP ${r.status} ${msg}`);
+  try { json = text ? JSON.parse(text) : null; } catch { json = { raw: text.slice(0, 300) }; }
+  if (!r.ok && !allow.includes(r.status)) {
+    const msg = json && json.message ? json.message : String(text).slice(0, 300);
+    const errs = json && json.errors ? '  ' + JSON.stringify(json.errors).slice(0, 300) : '';
+    throw new Error(`${method} ${url} → HTTP ${r.status} ${msg}${errs}`);
   }
   return { status: r.status, json };
 }
@@ -151,10 +153,26 @@ async function mapLimit(items, limit, fn) {
 
   if (has('dry')) { console.log('\n--dry：只列出，不提交'); return; }
 
-  /* 3. 当前分支的父提交（空仓库就是没有） */
+  /* 3. 当前分支的父提交 */
   let parentSha = null;
   let baseTree = null;
-  const ref = await api('GET', `/repos/${owner}/${REPO}/git/ref/heads/${BRANCH}`);
+  // ⚠️ 空仓库时这个接口返回 **409**（Git Repository is empty），不是 404
+  let ref = await api('GET', `/repos/${owner}/${REPO}/git/ref/heads/${BRANCH}`, null, { allow: [404, 409] });
+
+  if (ref.status !== 200) {
+    /* ⚠️ 这里踩过一个坑：**完全空的仓库里连 blob 都建不了**。
+       POST /git/blobs 会返回 409「Git Repository is empty」——
+       Git Data API 要求仓库至少已有一次提交才能用。
+       所以先用 Contents API 塞一个占位 README 把仓库初始化出来，
+       再往上叠正常提交。（占位文件会在这次提交里被同名文件覆盖掉。） */
+    console.log('\n空仓库：先用占位提交初始化（GitHub 不允许在完全空的仓库里建 blob）');
+    await api('PUT', `/repos/${owner}/${REPO}/contents/README.md`, {
+      message: 'chore: 初始化仓库',
+      content: Buffer.from('# 初始化\n\n本文件将被下一次提交覆盖。\n', 'utf8').toString('base64'),
+      branch: BRANCH,
+    });
+    ref = await api('GET', `/repos/${owner}/${REPO}/git/ref/heads/${BRANCH}`, null, { allow: [404, 409] });
+  }
   if (ref.status === 200) {
     parentSha = ref.json.object.sha;
     const parent = await api('GET', `/repos/${owner}/${REPO}/git/commits/${parentSha}`);
