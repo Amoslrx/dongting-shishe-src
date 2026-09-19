@@ -1,0 +1,25 @@
+# 多人协作时的换行符约定
+# 不加这个文件，Windows / Mac / Linux 成员之间会因为 CRLF 与 LF 的差异
+# 产生大量「文件没改但 git 显示已修改」的噪音。
+#
+# text=auto：仓库里统一存 LF，检出时按平台自动转换
+* text=auto
+
+# 二进制文件明确标出来，防止被误当作文本处理
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.woff2 binary
+*.woff  binary
+*.ttf   binary
+*.otf   binary
+
+# 文本文件在 diff 里按各自语法高亮
+*.md    text
+*.html  text
+*.css   text
+*.js    text
+*.json  text
+*.py    text

@@ -1,0 +1,123 @@
+{
+  "guanhe": {
+    "src": "images/art/guanhe.webp",
+    "thumb": "images/art/guanhe-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "jiushu": {
+    "src": "images/art/jiushu.webp",
+    "thumb": "images/art/jiushu-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "zengbie": {
+    "src": "images/art/zengbie.webp",
+    "thumb": "images/art/zengbie-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "cunju": {
+    "src": "images/art/cunju.webp",
+    "thumb": "images/art/cunju-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "xijiangyue": {
+    "src": "images/art/xijiangyue.webp",
+    "thumb": "images/art/xijiangyue-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "wangui": {
+    "src": "images/art/wangui.webp",
+    "thumb": "images/art/wangui-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "yuye": {
+    "src": "images/art/yuye.webp",
+    "thumb": "images/art/yuye-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "shanxing": {
+    "src": "images/art/shanxing.webp",
+    "thumb": "images/art/shanxing-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "qiuxing": {
+    "src": "images/art/qiuxing.webp",
+    "thumb": "images/art/qiuxing-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "huanxisha": {
+    "src": "images/art/huanxisha.webp",
+    "thumb": "images/art/huanxisha-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  },
+  "yezuo": {
+    "src": "images/art/yezuo.webp",
+    "thumb": "images/art/yezuo-thumb.webp",
+    "title": "",
+    "date": "",
+    "credit": "AI 生成 · LiblibAI",
+    "ai": true,
+    "page": "",
+    "w": 616,
+    "h": 900
+  }
+}

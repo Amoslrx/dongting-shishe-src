@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东亭诗社 · 作品展示</title>
+<style>
+/* ============================================================
+   东亭诗社 · 作品展示（主页）
+   ------------------------------------------------------------
+   这一版只做一件事：**已经有作品数据时，主页怎么把它展示出来**
+   · 没有内容编辑器（不做登录/投稿/编辑/删除）
+   · 没有详情页（内容就地展开，不跳转、不弹独立页面）
+   · 数据结构照后端的来：
+       标题 / 缩略图 / 内容(HTML) / 评论区 / 点赞 / 审核记录 / 时间 / 编码
+   ============================================================ */
+:root{
+  --paper:     #f6f2e9;
+  --card:      #fffdf8;
+  --ink:       #1f1d1a;
+  --ink-soft:  #5c5750;
+  --ink-faint: #948c80;
+  --line:      #e5ded0;
+  --seal:      #a8342a;
+  --ok:        #4a7c59;   /* 审核通过 */
+  --wait:      #b08028;   /* 待审核 */
+  --shadow:    0 1px 2px rgb(60 50 30 / .06);
+  --serif: "Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",Georgia,serif;
+  --sans:  system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --seal-img: url("data:image/png;base64,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");   /* 社徽，抠图见 tools/make-seal.py */
+}
+*{ box-sizing: border-box; }
+html{ -webkit-text-size-adjust: 100%; }
+body{
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+/* 背景：水墨横幅当壁纸。用固定伪元素而不是 background-attachment: fixed，
+   后者在 iOS Safari 上滚动会抖。第一层淡纸色是蒙版，用来把画面压淡。 */
+body::before{
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgb(246 242 233 / .46), rgb(246 242 233 / .54)),
+    url('images/bg.webp');
+  background-position: center 40%, center 40%;
+  background-size: cover, cover;
+  background-repeat: no-repeat, no-repeat;
+}
+button{ font: inherit; color: inherit; cursor: pointer; }
+:focus-visible{ outline: 2px solid var(--seal); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- 页头 ---------- */
+.hero{
+  max-width: 1240px; margin: 0 auto;
+  padding: 46px 24px 26px;
+  position: relative;
+}
+.hero__eyebrow{
+  margin: 0 0 10px;
+  font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.hero__title{
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 500; letter-spacing: .1em;
+}
+.hero__sub{ margin: 12px 0 0; color: var(--ink-soft); font-size: 14px; }
+.hero__stats{
+  margin: 18px 0 0; padding-top: 14px;
+  border-top: 1px solid var(--line);
+  max-width: 460px;
+  color: var(--ink-soft); font-size: 13px; letter-spacing: .08em;
+}
+.seal{
+  position: absolute; top: 44px; right: 26px;
+  width: 66px; height: 66px;
+  background: var(--seal-img) center / contain no-repeat;
+  opacity: .88; transform: rotate(-4deg);
+  pointer-events: none; user-select: none;
+}
+
+/* ---------- 工具栏 ---------- */
+.toolbar{
+  position: sticky; top: 0; z-index: 20;
+  max-width: 1240px; margin: 0 auto;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(1.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+}
+.toolbar__row{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search{ flex: 1; min-width: 0; }
+.search input{
+  width: 100%; padding: 10px 16px;
+  -webkit-appearance: none; appearance: none;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  backdrop-filter: blur(8px);
+  font: inherit; font-size: 14px; color: var(--ink);
+}
+.search input::placeholder{ color: color-mix(in srgb, var(--ink-faint) 90%, transparent); }
+.toolbar__toggle{ display: inline-flex; align-items: center; gap: 5px; }
+.btn-ghost{
+  padding: 8px 16px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 62%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 13px; color: var(--ink-soft); white-space: nowrap;
+}
+.btn-ghost:hover{ border-color: var(--ink-faint); color: var(--ink); }
+.badge{
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px; background: var(--seal); color: #fff;
+  font-size: 11px; line-height: 16px; text-align: center;
+}
+.toolbar__more{ display: none; }
+.toolbar__more.is-open{ display: block; margin-top: 10px; }
+.filters{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.filters__label{ align-self: center; font-size: 12px; letter-spacing: .16em; color: var(--ink-faint); }
+.chip{
+  padding: 5px 13px; border: 1px solid var(--line); border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  font-size: 13px; color: var(--ink-soft);
+}
+.chip[aria-pressed="true"]{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip small{ opacity: .55; margin-left: 4px; font-size: 11px; }
+select{
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); font: inherit; font-size: 13px; color: var(--ink-soft);
+  cursor: pointer;
+}
+
+/* ---------- 作品列表：三列瀑布流 ---------- */
+/* 内容长短不一，用 CSS 多列最省事（和原版一致）。
+   代价：阅读顺序是「先填满第一列再第二列」，不是从左到右逐行；
+   作品按时间是纵向连续的，所以这里可以接受。
+   列数不用写媒体查询：column-width 会自动决定能放几列。 */
+.list{
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  column-count: 3;
+  column-width: 320px;
+  column-gap: 22px;
+}
+
+.work{
+  break-inside: avoid;      /* 关键：不让一张卡片被拆到两列 */
+  margin: 0 0 22px;
+  padding: 18px 18px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .2s, border-color .2s;
+}
+.work:hover{ border-color: #d8cfbc; box-shadow: 0 8px 22px rgb(60 50 30 / .09); }
+.work__thumb{
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f3ede0;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 14px;
+  box-shadow: inset 0 0 0 1px rgb(122 104 74 / .12);
+}
+.work__thumb img{ display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* 标题行：标题 + 作者在左（作者用另一档字号），点赞/评论数在右。
+   数量只做展示，功能键在卡片下方。 */
+.work__head{ display: flex; align-items: baseline; gap: 9px; }
+.work__title{
+  margin: 0;
+  flex: 0 1 auto; min-width: 0;
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 500; letter-spacing: .05em;
+}
+/* 作者：比标题小一档（20px → 13px），并换成无衬线、降一级颜色，
+   这样紧挨着标题也不会被看成标题的一部分 */
+.work__author{
+  flex: 0 0 auto;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--ink-faint);
+}
+.work__counts{
+  flex: 0 0 auto;
+  margin-left: auto;          /* 把计数推到行尾 */
+  display: flex; gap: 9px; white-space: nowrap;
+  font-size: 12px; color: var(--ink-faint);
+}
+.work__counts b{
+  font-weight: 600; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+/* 编码：后端给的唯一编号，等宽字体显示便于核对 */
+.work__code{
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px; color: var(--ink-faint);
+  padding: 2px 8px; border: 1px solid var(--line); border-radius: 5px;
+}
+.work__meta{
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 7px 0 13px;
+  font-size: 12.5px; color: var(--ink-faint);
+}
+.work__audit{
+  padding: 2px 9px; border-radius: 999px; font-size: 11.5px;
+  border: 1px solid currentColor;
+}
+.work__audit[data-s="approved"]{ color: var(--ok); }
+.work__audit[data-s="pending"]{ color: var(--wait); }
+.work__audit[data-s="rejected"]{ color: var(--seal); }
+
+/* 内容：后端存的是 HTML，这里直接渲染。
+   折叠高度用实测像素，不数行数 —— 内容是 HTML，行数算不准。 */
+.work__content{
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 2;
+  letter-spacing: .02em;
+  color: var(--ink);
+  overflow: hidden;
+  position: relative;
+}
+.work__content > :first-child{ margin-top: 0; }
+.work__content > :last-child{ margin-bottom: 0; }
+.work__content p{ margin: 0 0 .6em; }
+.work__content img{ max-width: 100%; height: auto; border-radius: 6px; margin: .6em 0; }
+/* 正文里的搜索命中：只包文本节点，不碰标签，所以不会切坏 HTML */
+.work__content mark, .work__title mark{
+  padding: 0 1px; border-radius: 3px;
+  background: color-mix(in srgb, var(--seal) 20%, transparent);
+  color: inherit; font-weight: inherit;
+}
+/* 诗词以外的文字（序、后记、自注）左侧加一条竖线以示区分。
+   ⚠️ 为什么用约定标签而不是自动判断：靠程序猜「哪段是诗、哪段是序」不可靠
+      —— 诗词长短句和散文在字符层面没有硬边界。所以约定：
+        · 诗词正文        → <p>
+        · 序/后记/自注    → <blockquote>（也兼容 <p class="note">）
+      录入端按这个来标，展示端统一加竖线。 */
+.work__content blockquote,
+.work__content .note{
+  margin: .9em 0;
+  padding: .15em 0 .15em 13px;
+  border-left: 2px solid color-mix(in srgb, var(--seal) 38%, var(--line));
+  color: var(--ink-soft);
+  font-size: .95em;
+  line-height: 1.9;
+}
+.work__content blockquote p,
+.work__content .note p{ margin: 0 0 .4em; }
+.work__content blockquote > :last-child,
+.work__content .note > :last-child{ margin-bottom: 0; }
+.work__content.is-clamped{ max-height: var(--clamp-h, 12rem); }
+.work__content.is-clamped::after{
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3rem;
+  background: linear-gradient(transparent, var(--card));
+}
+/* 展开全文：不是功能键，跟在正文后面做一个小链接 */
+.work__more{
+  display: block;
+  margin: 6px 0 0; padding: 0; border: 0; background: none;
+  font-size: 13px; color: var(--seal);
+  text-decoration: underline dotted; text-underline-offset: 4px;
+}
+.work__more[hidden]{ display: none; }
+
+/* 功能键行：点赞 / 收藏 / 复制 / 评论 */
+.work__actions{
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.act{
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid transparent; border-radius: 999px;
+  background: none; font-size: 13px; color: var(--ink-faint);
+  transition: color .18s, background .18s, border-color .18s;
+}
+.act:hover{ color: var(--ink); background: rgb(0 0 0 / .045); }
+.act[aria-pressed="true"]{
+  color: var(--seal);
+  border-color: color-mix(in srgb, var(--seal) 30%, transparent);
+}
+.act i{ font-style: normal; font-variant-numeric: tabular-nums; }
+.work__more{
+  padding: 0; border: 0; background: none;
+  font-size: 13px; color: var(--seal);
+  text-decoration: underline dotted; text-underline-offset: 4px;
+}
+
+/* ---------- 评论区 ---------- */
+.cmt{ display: none; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.cmt.is-open{ display: block; }
+.cmt__list{ list-style: none; margin: 0 0 14px; padding: 0; }
+.cmt__item{ padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.cmt__item:last-child{ border-bottom: 0; }
+.cmt__head{ display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.cmt__name{ font-size: 13px; letter-spacing: .06em; }
+.cmt__time{ font-size: 12px; color: var(--ink-faint); }
+.cmt__text{ margin: 0; font-size: 14px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+.cmt__empty{ padding: 4px 0 12px; color: var(--ink-faint); font-size: 13px; }
+.cmt__form{ display: grid; gap: 8px; }
+.cmt__form input, .cmt__form textarea{
+  width: 100%; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--paper); font: inherit; font-size: 14px; color: var(--ink);
+  resize: vertical;
+}
+.cmt__form input{ max-width: 220px; }
+.cmt__form textarea{ line-height: 1.8; }
+.cmt__foot{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cmt__hint{ font-size: 12px; color: var(--ink-faint); line-height: 1.6; }
+.cmt__hint.is-warn{ color: var(--seal); }
+
+.empty{ max-width: 1240px; margin: 0 auto; padding: 60px 24px 100px; text-align: center; color: var(--ink-faint); font-family: var(--serif); }
+
+/* ---------- 页脚 ---------- */
+.site-foot{ max-width: 1240px; margin: 0 auto; padding: 0 24px 56px; }
+.site-foot__inner{
+  padding-top: 18px; border-top: 1px solid var(--line);
+  color: var(--ink-soft); font-size: 12.5px; line-height: 2;
+}
+.site-foot b{ color: var(--seal); font-weight: 600; }
+.site-foot code{
+  padding: 1px 5px; border-radius: 4px; background: rgb(0 0 0 / .05);
+  font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+}
+
+@media (max-width: 760px){
+  .hero{ padding: 26px 16px 16px; }
+  .hero__title{ font-size: 28px; }
+  .seal{ top: 20px; right: 16px; width: 48px; height: 48px; }
+  .toolbar{ padding: 8px 16px 10px; }
+  /* 窄屏只剩一列（column-width 自动收，这里只调间距和缩略图比例） */
+  .list{ padding: 16px 16px 48px; column-gap: 16px; }
+  .work{ padding: 16px 16px 12px; margin-bottom: 16px; }
+  .work__thumb{ aspect-ratio: 4 / 3; margin-bottom: 12px; }
+  .filters{ flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .filters::-webkit-scrollbar{ display: none; }
+  .filters .chip, .filters .filters__label{ flex: 0 0 auto; }
+}
+@media (prefers-reduced-motion: reduce){ *{ animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="hero__eyebrow">Poetry · 作品展示</p>
+  <h1 class="hero__title">东亭诗社</h1>
+  <p class="hero__sub">社中作品，按时间陈列</p>
+  <p class="hero__stats" id="stats">共 0 篇</p>
+  <div class="seal" aria-hidden="true"></div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar__row">
+    <label class="search">
+      <input id="q" type="search" placeholder="搜索标题或正文…" autocomplete="off">
+    </label>
+    <button class="btn-ghost toolbar__toggle" id="filterToggle" aria-expanded="false">
+      筛选<span class="badge" id="filterBadge" hidden>0</span>
+    </button>
+  </div>
+  <div class="toolbar__more" id="toolbarMore">
+    <div class="toolbar__row">
+      <select id="sort" aria-label="排序">
+        <option value="time">最新发布</option>
+        <option value="likes">最多点赞</option>
+        <option value="comments">最多评论</option>
+      </select>
+      <button class="btn-ghost" id="reset">重置</button>
+    </div>
+    <div class="filters" id="yearFilters"></div>
+    <div class="filters" id="auditFilters"></div>
+  </div>
+</div>
+
+<main class="list" id="list"></main>
+<p class="empty" id="empty" hidden>还没有符合条件的作品</p>
+
+<footer class="site-foot">
+  <p class="site-foot__inner">
+    <b>演示数据</b>：本站为「主页作品展示」版，作品数据按后端结构模拟（标题 / 缩略图 / 内容 HTML / 评论区 / 点赞 / 审核记录 / 时间 / 编码）。<br>
+    <b>点赞与评论</b>目前只存在访问者自己的浏览器里，换人换设备各看各的；接后端时把 <code>Store</code> 换成接口请求即可。<br>
+    <b>不做内容编辑器、不做详情页</b>——正文在本页就地展开。
+  </p>
+</footer>
+
+<script>
+/* ============================================================
+   ★ 作品数据（照后端结构）
+   ------------------------------------------------------------
+   后端字段 → 这里字段名
+     标题        title
+     缩略图      thumb
+     内容(HTML)  content
+     评论区      comments[]
+     点赞        likes
+     审核记录    audit { status, reviewer, at, note, log[] }
+     时间        time
+     编码        code
+
+   接入后端时：把下面的 WORKS 换成接口返回的数组即可，
+   字段名对齐就行；渲染逻辑不用动。
+   ⚠️ content 是 HTML，直接插进页面。后端必须保证它已过审
+      （这正是「审核记录」字段存在的意义）；如果来源不完全可信，
+      要加白名单清洗，否则就是 XSS 漏洞。
+   ============================================================ */
+const WORKS = [
+  {
+    code: 'DT-2026-001',
+    title: '秋夜寄友',
+    author: '江砚',
+    thumb: 'images/art/qiuxing-thumb.webp',
+    time: '2026-09-12',
+    likes: 18,
+    audit: {
+      status: 'approved', reviewer: '社长', at: '2026-09-12 20:05', note: '',
+      log: [{ at:'2026-09-12 19:40', by:'投稿者', action:'提交' },
+            { at:'2026-09-12 20:05', by:'社长', action:'通过' }]
+    },
+    content: `<p>寒灯独对夜三更，忽忆江头送客行。</p>
+<p>一纸未成先有泪，不知何处是归程。</p>
+<blockquote>去岁秋杪，送友人于灞桥。是夜宿孤馆，灯下欲作书，墨未落而泪先至。遂废书就枕，枕上得此四句。</blockquote>
+<blockquote>第三句原本作「一纸未成先有恨」，后来改了——「泪」比「恨」早一步，也软一步。同社诸君若有兴趣，可试着和一首，不必拘韵，意到即可。</blockquote>`,
+    comments: [
+      { user:'江砚', text:'「一纸未成先有泪」这句最动人，眼泪比文字先到。', at:'2026-09-13 10:22' },
+      { user:'林见月', text:'结句「不知何处是归程」把前面全兜住了。', at:'2026-09-13 21:07' }
+    ]
+  },
+  {
+    code: 'DT-2026-002',
+    title: '山行',
+    author: '顾行舟',
+    thumb: 'images/art/shanxing-thumb.webp',
+    time: '2026-08-30',
+    likes: 26,
+    audit: {
+      status: 'approved', reviewer: '社长', at: '2026-08-30 18:10', note: '',
+      log: [{ at:'2026-08-30 17:52', by:'投稿者', action:'提交' },
+            { at:'2026-08-30 18:10', by:'社长', action:'通过' }]
+    },
+    content: `<p>石径随云转，松风入袖凉。</p>
+<p>不知山远近，唯觉草花香。</p>
+<blockquote>五绝一首，写的是去年秋天去终南山的时候。</blockquote>`,
+    comments: [
+      { user:'顾行舟', text:'五绝贵在干净，这首做到了。', at:'2026-08-31 09:15' }
+    ]
+  },
+  {
+    code: 'DT-2026-003',
+    title: '观荷',
+    author: '苏晚',
+    thumb: 'images/art/guanhe-thumb.webp',
+    time: '2026-07-18',
+    likes: 11,
+    audit: {
+      status: 'approved', reviewer: '社长', at: '2026-07-19 08:30', note: '',
+      log: [{ at:'2026-07-18 22:10', by:'投稿者', action:'提交' },
+            { at:'2026-07-19 08:30', by:'社长', action:'通过' }]
+    },
+    content: `<p>一池绿水半池风，荷气浮来雨气中。</p>
+<p>小艇不知何处去，蜻蜓立在断莲蓬。</p>`,
+    comments: []
+  },
+  {
+    code: 'DT-2026-004',
+    title: '夜坐',
+    author: '林见月',
+    thumb: 'images/art/yezuo-thumb.webp',
+    time: '2026-06-05',
+    likes: 7,
+    audit: {
+      status: 'pending', reviewer: '', at: '2026-06-05 23:40', note: '待社长复核',
+      log: [{ at:'2026-06-05 23:40', by:'投稿者', action:'提交' }]
+    },
+    content: `<p>露重萤犹湿，更深夜转长。</p>
+<p>推窗无一事，月色满空廊。</p>
+<p>（这首还没过审，暂时只在主页占位展示。）</p>`,
+    comments: []
+  }
+];
+</script>
+
+<script>
+/* ============================================================
+   存储层：点赞与评论
+   ------------------------------------------------------------
+   ⚠️ 演示版：只存在访问者自己的浏览器里，换人换设备各看各的。
+      接后端时把 Store 换成接口请求，UI 逻辑不用动。
+   ============================================================ */
+const STORE_KEY = 'dongting-shishe:showcase:v1';
+const Store = {
+  data: {},
+  load(){ try { this.data = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { this.data = {}; } },
+  save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(this.data)); } catch {} },
+  of(code){ return this.data[code] || (this.data[code] = { liked:false, marked:false, extraLikes:0, myComments:[] }); },
+  toggleLike(code){ const s = this.of(code); s.liked = !s.liked; this.save(); return s; },
+  toggleMark(code){ const s = this.of(code); s.marked = !s.marked; this.save(); return s; },
+  addComment(code, name, text){
+    const s = this.of(code);
+    s.myComments.push({ user: name || '匿名', text, at: new Date().toISOString().slice(0,16).replace('T',' ') });
+    this.save(); return s;
+  }
+};
+Store.load();
+
+/* 后端给的 likes 是基准值，本机点赞在此之上叠加 */
+const likeCount = w => w.likes + (Store.of(w.code).extraLikes || 0) + (Store.of(w.code).liked ? 1 : 0);
+const allComments = w => [...w.comments, ...Store.of(w.code).myComments];
+const cmtCount = w => allComments(w).length;
+
+const state = { q:'', year:'全部', audit:'全部', sort:'time' };
+
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+/* 内容摘出来做搜索用：HTML 去掉标签后的纯文本 */
+function plain(html){
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return (d.textContent || '').replace(/\s+/g, ' ');
+}
+
+function terms(){ return state.q.trim().toLowerCase().split(/\s+/).filter(Boolean); }
+
+function match(w){
+  if (state.year  !== '全部' && w.time.slice(0,4) !== state.year) return false;
+  if (state.audit !== '全部' && auditLabel(w.audit.status) !== state.audit) return false;
+  const ts = terms();
+  if (!ts.length) return true;
+  const hay = (w.title + ' ' + w.code + ' ' + plain(w.content)).toLowerCase();
+  return ts.every(t => hay.includes(t));
+}
+
+const SORTS = {
+  time:     (a, b) => b.time.localeCompare(a.time),
+  likes:    (a, b) => likeCount(b) - likeCount(a),
+  comments: (a, b) => cmtCount(b) - cmtCount(a)
+};
+
+const AUDIT = { approved:'已通过审核', pending:'待审核', rejected:'未通过' };
+const auditLabel = s => AUDIT[s] || s;
+
+function hl(text, ts){
+  let out = esc(text);
+  ts.forEach(t => {
+    if (!t) return;
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    out = out.split(re).map((p, i) => i % 2 ? `<mark>${p}</mark>` : p).join('');
+  });
+  return out;
+}
+
+/* 正文里的搜索高亮。
+   ⚠️ 不能对 HTML 字符串用正则包 <mark> —— 那会把标签切开（字符跨到标签里就废了）。
+      正确做法是**只遍历文本节点**，在文本层替换，标签完全不受影响。 */
+function highlightIn(root, ts){
+  if (!ts.length) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  for (const node of nodes){
+    const text = node.nodeValue, low = text.toLowerCase();
+    const ranges = [];
+    for (const t of ts){
+      let p = low.indexOf(t);
+      while (p >= 0){ ranges.push([p, p + t.length]); p = low.indexOf(t, p + 1); }
+    }
+    if (!ranges.length) continue;
+
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    for (const r of ranges){
+      const last = merged[merged.length - 1];
+      if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+      else merged.push(r.slice());
+    }
+
+    const frag = document.createDocumentFragment();
+    let i = 0;
+    for (const [s, e] of merged){
+      if (s > i) frag.appendChild(document.createTextNode(text.slice(i, s)));
+      const m = document.createElement('mark');
+      m.textContent = text.slice(s, e);
+      frag.appendChild(m);
+      i = e;
+    }
+    if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+    node.parentNode.replaceChild(frag, node);
+  }
+}
+
+/* ---------- 渲染 ---------- */
+function render(){
+  const ts = terms();
+  const list = WORKS.filter(match).sort(SORTS[state.sort] || SORTS.time);
+  const box = $('#list');
+
+  box.innerHTML = list.map(w => {
+    const st = Store.of(w.code);
+    const n  = cmtCount(w);
+    return `
+    <article class="work" data-code="${esc(w.code)}">
+      <div class="work__thumb"><img src="${esc(w.thumb)}" alt="" loading="lazy" decoding="async"></div>
+      <div>
+        <div class="work__head">
+          <h2 class="work__title">${hl(w.title, ts)}</h2>
+          ${w.author ? `<span class="work__author">${esc(w.author)}</span>` : ''}
+          <span class="work__counts">
+            <span title="点赞数">赞 <b>${likeCount(w)}</b></span>
+            <span title="评论数">评 <b>${n}</b></span>
+          </span>
+        </div>
+        <div class="work__meta">
+          <span class="work__code">${esc(w.code)}</span>
+          <time>${esc(w.time)}</time>
+          <span class="work__audit" data-s="${esc(w.audit.status)}">${esc(auditLabel(w.audit.status))}</span>
+        </div>
+        <div class="work__content">${w.content}</div>
+        <button type="button" class="work__more" data-act="more" hidden>展开全文</button>
+        <div class="work__actions">
+          <button type="button" class="act" data-act="like" aria-pressed="${st.liked}">点赞</button>
+          <button type="button" class="act" data-act="mark" aria-pressed="${!!st.marked}">收藏</button>
+          <button type="button" class="act" data-act="copy">复制</button>
+          <button type="button" class="act" data-act="cmt" aria-pressed="false">评论</button>
+        </div>
+        <section class="cmt" data-cmt hidden>
+          <ul class="cmt__list"></ul>
+          <form class="cmt__form">
+            <input maxlength="12" placeholder="你的名字（可留空）" autocomplete="off">
+            <textarea maxlength="200" rows="3" placeholder="说点什么…（最多 200 字）"></textarea>
+            <div class="cmt__foot">
+              <span class="cmt__hint">演示版：评论只保存在你自己的浏览器里，别人看不到</span>
+              <button type="submit" class="btn-ghost">发表</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </article>`;
+  }).join('');
+
+  $('#empty').hidden = list.length > 0;
+  $('#stats').textContent = `共 ${WORKS.length} 篇 · 已通过 ${WORKS.filter(w => w.audit.status==='approved').length} 篇`;
+  updateBadge();
+  // 正文重绘完再做高亮。render() 每次都用原始 HTML 重建卡片，
+  // 所以不会叠加出嵌套的 <mark>。
+  if (ts.length) list.forEach(w => {
+    const c = cardOf(w.code)?.querySelector('.work__content');
+    if (c) highlightIn(c, ts);
+  });
+  list.forEach(w => { renderComments(w.code); applyClamp(w.code); });
+}
+
+/* 折叠：按**实测高度**决定，不数行数 —— 内容是 HTML，行数算不准 */
+function applyClamp(code){
+  const card = cardOf(code);
+  if (!card) return;
+  const box  = card.querySelector('.work__content');
+  const more = card.querySelector('[data-act="more"]');
+  box.classList.remove('is-clamped');
+  box.style.removeProperty('--clamp-h');
+  const lh  = parseFloat(getComputedStyle(box).lineHeight) || 33;
+  const max = lh * 6;                       // 超过 6 行就折叠
+  if (box.scrollHeight > max + 2){
+    box.style.setProperty('--clamp-h', max + 'px');
+    box.classList.add('is-clamped');
+    more.hidden = false;
+    more.textContent = '展开全文';
+    more.setAttribute('aria-expanded', 'false');
+  } else {
+    more.hidden = true;
+  }
+}
+
+const cardOf = code => $$('.work').find(c => c.dataset.code === code);
+
+function renderComments(code){
+  const card = cardOf(code);
+  if (!card) return;
+  const w = WORKS.find(x => x.code === code);
+  const list = allComments(w);
+  const ul = card.querySelector('.cmt__list');
+  if (!list.length){
+    ul.innerHTML = '<li class="cmt__empty">还没有评论，来说第一句。</li>';
+    return;
+  }
+  // 新的排前面；评论是用户输入，必须过 esc()
+  ul.innerHTML = [...list].reverse().map(c => `
+    <li class="cmt__item">
+      <div class="cmt__head">
+        <span class="cmt__name">${esc(c.user)}</span>
+        <time class="cmt__time">${esc(c.at)}</time>
+      </div>
+      <p class="cmt__text">${esc(c.text)}</p>
+    </li>`).join('');
+}
+
+function updateBadge(){
+  const n = (state.year !== '全部' ? 1 : 0) + (state.audit !== '全部' ? 1 : 0);
+  const b = $('#filterBadge');
+  b.hidden = n === 0;
+  b.textContent = String(n);
+}
+
+/* ---------- 筛选项 ---------- */
+function buildFilters(){
+  const years = [...new Set(WORKS.map(w => w.time.slice(0,4)))].sort().reverse();
+  const yEl = $('#yearFilters');
+  yEl.innerHTML = '<span class="filters__label">年份</span>';
+  [['全部', WORKS.length], ...years.map(y => [y, WORKS.filter(w => w.time.startsWith(y)).length])]
+    .forEach(([name, n]) => {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.dataset.key = 'year'; b.dataset.value = name;
+      b.setAttribute('aria-pressed', String(state.year === name));
+      b.innerHTML = `${name}<small>${n}</small>`;
+      yEl.appendChild(b);
+    });
+
+  const audits = ['全部', ...[...new Set(WORKS.map(w => auditLabel(w.audit.status)))]];
+  const aEl = $('#auditFilters');
+  aEl.innerHTML = '<span class="filters__label">审核</span>';
+  audits.forEach(name => {
+    const n = name === '全部' ? WORKS.length : WORKS.filter(w => auditLabel(w.audit.status) === name).length;
+    const b = document.createElement('button');
+    b.className = 'chip'; b.dataset.key = 'audit'; b.dataset.value = name;
+    b.setAttribute('aria-pressed', String(state.audit === name));
+    b.innerHTML = `${name}<small>${n}</small>`;
+    aEl.appendChild(b);
+  });
+}
+
+/* ---------- 交互 ---------- */
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (chip){
+    state[chip.dataset.key] = chip.dataset.value;
+    $$('.chip').forEach(c => { if (c.dataset.key === chip.dataset.key)
+      c.setAttribute('aria-pressed', String(c.dataset.value === chip.dataset.value)); });
+    render();
+    return;
+  }
+
+  const act = e.target.closest('[data-act]');
+  if (act){
+    const card = act.closest('.work');
+    const code = card.dataset.code;
+    const kind = act.dataset.act;
+
+    if (kind === 'like'){ Store.toggleLike(code); refresh(code); return; }
+    if (kind === 'mark'){ Store.toggleMark(code); refresh(code); return; }
+    if (kind === 'copy'){ copyWork(code, act); return; }
+
+    // 「展开全文」只展开正文；评论是独立的功能键，两者不联动
+    // （评论默认就是折叠的，不该因为看全文被顺带打开）
+    if (kind === 'more'){
+      const box = card.querySelector('.work__content');
+      const open = box.classList.toggle('is-clamped') === false;
+      act.textContent = open ? '收起' : '展开全文';
+      act.setAttribute('aria-expanded', String(open));
+      return;
+    }
+    if (kind === 'cmt'){
+      const cmt = card.querySelector('.cmt');
+      const open = cmt.classList.toggle('is-open');
+      act.setAttribute('aria-pressed', String(open));
+      if (open) cmt.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      return;
+    }
+  }
+});
+
+/* 复制全文：把标题和正文（去掉标签的纯文本）拷到剪贴板。
+   ⚠️ clipboard API 在部分环境下**既不 resolve 也不 reject**（权限提示被拦、
+      页面未聚焦等），直接 await 会永远挂住、按钮也就永远不会变。
+      所以加一个 800ms 超时兜底，保证一定有反馈。 */
+async function copyWork(code, btn){
+  const w = WORKS.find(x => x.code === code);
+  if (!w) return;
+  const text = `《${w.title}》\n\n${plain(w.content)}`;
+
+  let ok = true;
+  try {
+    await Promise.race([
+      navigator.clipboard.writeText(text),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('clipboard timeout')), 800))
+    ]);
+  } catch {
+    ok = legacyCopy(text);           // 退回 execCommand
+  }
+
+  const old = btn.textContent;
+  btn.textContent = ok ? '已复制' : '复制失败';
+  setTimeout(() => { btn.textContent = old; }, 1400);
+}
+
+/* 旧方案：建一个隐藏 textarea 选中后 execCommand('copy')。
+   返回是否成功，好让调用方给出准确反馈，而不是假装成功。 */
+function legacyCopy(text){
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch { return false; }
+}
+
+$('#q').addEventListener('input', e => { state.q = e.target.value; render(); });
+$('#sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
+$('#filterToggle').addEventListener('click', () => {
+  const open = $('#toolbarMore').classList.toggle('is-open');
+  $('#filterToggle').setAttribute('aria-expanded', String(open));
+});
+$('#reset').addEventListener('click', () => {
+  Object.assign(state, { q:'', year:'全部', audit:'全部', sort:'time' });
+  $('#q').value = ''; $('#sort').value = 'time';
+  buildFilters(); render();
+});
+
+/* 发表评论 */
+document.addEventListener('submit', e => {
+  const form = e.target.closest('.cmt__form');
+  if (!form) return;
+  e.preventDefault();
+  const card = form.closest('.work');
+  const code = card.dataset.code;
+  const hint = form.querySelector('.cmt__hint');
+  const text = form.querySelector('textarea').value.trim();
+  if (!text){
+    hint.textContent = '先写点什么再发表～';
+    hint.classList.add('is-warn');
+    form.querySelector('textarea').focus();
+    return;
+  }
+  Store.addComment(code, form.querySelector('input').value.trim().slice(0,12), text.slice(0,200));
+  form.querySelector('textarea').value = '';
+  hint.textContent = '演示版：评论只保存在你自己的浏览器里，别人看不到';
+  hint.classList.remove('is-warn');
+  refresh(code);
+});
+
+/* 就地更新一张卡片的计数与评论，不重绘整个列表（避免丢失展开状态） */
+function refresh(code){
+  const card = cardOf(code);
+  if (!card) return;
+  const w = WORKS.find(x => x.code === code);
+  const st = Store.of(code);
+  // 计数在标题右侧，不在功能键上 —— 所以这里更新的是 .work__counts
+  card.querySelector('.work__counts').innerHTML =
+    `<span title="点赞数">赞 <b>${likeCount(w)}</b></span><span title="评论数">评 <b>${cmtCount(w)}</b></span>`;
+  card.querySelector('[data-act="like"]').setAttribute('aria-pressed', String(st.liked));
+  card.querySelector('[data-act="mark"]').setAttribute('aria-pressed', String(!!st.marked));
+  renderComments(code);
+  applyClamp(code);
+}
+
+/* 窗口尺寸变化要重算折叠高度；重绘会丢失展开状态，所以只重算不重绘 */
+let _rt;
+addEventListener('resize', () => {
+  clearTimeout(_rt);
+  _rt = setTimeout(() => WORKS.forEach(w => applyClamp(w.code)), 150);
+});
+buildFilters();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+﻿# 绝对不要提交
+.secrets.json
+*.key
+.env
+
+# 中间产物（可用 tools/fetch-*.js 重新下载）
+_build/
+
+# 临时文件
+_*.html
+_*.js
